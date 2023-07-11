@@ -7,8 +7,8 @@ import Comment from "./models/comment.js";
 import Category from "./models/category.js";
 
 dotenv.config();
-const { DB_URL } = process.env;
-mongoose.connect(DB_URL, { useNewUrlParser: true, useUnifiedTopology: true });
+const { DB_URI } = process.env;
+mongoose.connect(DB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
 
 async function populateDummyData() {
   // Generate categories

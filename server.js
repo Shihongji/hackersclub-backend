@@ -11,12 +11,19 @@ const app = express();
 dotenv.config();
 
 // Connect to MongoDB
-const DB_URL = process.env.DB_URL;
+const DB_URI = process.env.DB_URI;
 
-mongoose.connect(DB_URL, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
+mongoose
+  .connect(DB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => {
+    console.log("Connected to MongoDB");
+  })
+  .catch((err) => {
+    console.log(err);
+  });
 app.use(express.json());
 app.use(cors());
 
@@ -24,9 +31,9 @@ app.use(cors());
 app.use("/stories", storiesRoutes);
 // user routes
 app.use("/users", userRoutes);
-// comment routes 
+// comment routes
 app.use("/comments", commentRoutes);
-// category routes 
+// category routes
 app.use("/categories", categoryRoutes);
 
 app.get("/", (req, res) => {
