@@ -1,6 +1,7 @@
 import express from 'express';
 const router = express.Router();
-import Story from '../models/Story.js';
+import Story from '../models/story.js';
+// import StoriesController from '../api/stories.controller.js';
 
 // @route   GET /stories
 router.get('/', async (req, res) => {
@@ -11,6 +12,7 @@ router.get('/', async (req, res) => {
     res.status(500).json({ message: err });
   }
 });
+// router.route('/').get(StoriesController.apiGetStories);
 
 router.post('/', async (req, res) => {
   try {
