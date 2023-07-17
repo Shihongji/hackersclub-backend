@@ -1,9 +1,25 @@
 import Story from "../models/story.js";
 
 export const getAllStories = async (req, res) => {
+  // Some queries
+  const { page = 1, limit = 20, sortBy = 'created', order = 'desc', filter = '' } = req.query; 
   try {
-    const stories = await Story.find();
-    res.status(200).json(stories);
+    // Use the countDocuments() method to get the total number of stories 
+    const total = await Story.countDocuments();
+    // Use the find function with the limit and skip functionality for pagination
+    // Use the sort function to sort the getAllStories 
+    // Use the reges to filter the getAllStories
+    const stories = await Story.find({ title: { $regex: filter, $options: 'i' } })
+      .sort({ [sortBy]: order === 'desc' ? -1 : 1 })
+      .limit(Number(limit))
+      .skip((Number(page) - 1) * Number(limit));
+
+    res.status(200).json({
+      totalPages: Math.ceil(total / limit),
+      currentPage: page,
+      totalStories: total,
+      stories,
+    });
   } catch (err) {
     res.status(500).json({ message: err });
   }

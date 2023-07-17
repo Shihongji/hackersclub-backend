@@ -11,7 +11,7 @@ import {
 } from '../controllers/user.js';
 
 router.get('/', auth, getAllUsers);
-router.post('/', createUser);
+router.post('/register', createUser);
 router.get('/:UserId', getUserById);
 router.patch('/:UserId', updateUserById);
 router.delete('/:UserId', deleteUserById);

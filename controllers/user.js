@@ -36,7 +36,8 @@ export const createUser = async (req, res) => {
       role,
     });
     await user.save();
-    res.json(user);
+    // sensitive data
+    // res.json(user);
   } catch (err) {
     console.error(err.message);
     res.status(500).json({ error: err.message });
