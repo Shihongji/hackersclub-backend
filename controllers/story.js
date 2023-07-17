@@ -1,4 +1,4 @@
-import Story from "../models/story";
+import Story from "../models/story.js";
 
 export const getAllStories = async (req, res) => {
   try {
