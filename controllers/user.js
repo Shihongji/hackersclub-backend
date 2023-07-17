@@ -1,4 +1,8 @@
 import User from '../models/user.js';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
+dotenv.config();
 
 export const getAllUsers = async (req, res) => {
   try {
@@ -9,13 +13,73 @@ export const getAllUsers = async (req, res) => {
   }
 };
 
+// Register
 export const createUser = async (req, res) => {
+  const { username, password, email, avatar, bio, role } = req.body;
   try {
-    const newUser = await User.create(req.body);
-    res.status(201).json(newUser);
+    // Check if username already exists
+    let user = await User.findOne({ username });
+    if (user) {
+      return res.status(400).json({ error: 'Username already exists' });
+    }
+
+    // Hash password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    user = new User({
+      username,
+      password: hashedPassword,
+      email,
+      avatar,
+      bio,
+      role,
+    });
+    await user.save();
+    res.json(user);
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    console.error(err.message);
+    res.status(500).json({ error: err.message });
   }
+};
+
+// Login
+export const loginUser = async (req, res) => {
+  const { username, password } = req.body;
+
+  try {
+    // Check if user exists
+    let user = await User.findOne({ username });
+    if (!user) {
+      return res.status(400).json({ error: 'Invalid Credentials' });
+    }
+
+    // Check if password is correct
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ error: 'Invalid Credentials' });
+    }
+
+    // The user is authenticated, generate a JWT 
+    const payload = {
+      user: {
+        id: user.id,
+      },
+    };
+
+    jwt.sign(
+      payload,
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' },
+      (err, token) => {
+        if (err) throw err;
+        res.json({ token });
+      }
+    );
+    } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+    }
 };
 
 export const getUserById = async (req, res) => {
