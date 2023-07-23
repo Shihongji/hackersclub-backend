@@ -10,7 +10,7 @@ import {
   loginUser,
 } from '../controllers/user.js';
 
-router.get('/', auth, getAllUsers);
+router.get('/',  getAllUsers);
 router.post('/register', createUser);
 router.get('/:UserId', getUserById);
 router.patch('/:UserId', updateUserById);

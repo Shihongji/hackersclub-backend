@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import storiesRoutes from "./routes/story.js";
+import postsRoutes from "./routes/post.js";
 import userRoutes from "./routes/user.js";
 import commentRoutes from "./routes/comment.js";
 import categoryRoutes from "./routes/category.js";
@@ -28,7 +28,7 @@ app.use(express.json());
 app.use(cors());
 
 // Use stories routes
-app.use("/stories", storiesRoutes);
+app.use("/posts", postsRoutes);
 // user routes
 app.use("/users", userRoutes);
 // comment routes

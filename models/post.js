@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 // Define the schema for the Story model
 const { Schema } = mongoose;
-const storySchema = new Schema({
+const postSchema = new Schema({
   author: String,
   title: String,
   url: String,
@@ -16,7 +16,7 @@ const storySchema = new Schema({
   // tags: [String],
 });
 
-// Create the Story model using the schema
-const Story = mongoose.model('Story', storySchema);
+// Create the Post model using the schema
+const Post = mongoose.model('Post', postSchema,);
 
-export default Story;
+export default Post;
