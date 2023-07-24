@@ -42,7 +42,11 @@ export const createUser = async (req, res, next) => {
     });
 
     // Delete the image file from your server
-    fs.unlinkSync(req.file.path);
+    try {
+      fs.unlinkSync(req.file.path);
+    } catch (err) {
+      console.log(err);
+    }
 
     const user = new User({
       username,

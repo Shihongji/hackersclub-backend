@@ -1,4 +1,5 @@
-import Comment from "../models/Comment.js";
+import Comment from "../models/comment.js";
+import Post from "../models/post.js";
 
 export const getAllComments = async (req, res) => {
   try {
@@ -59,3 +60,14 @@ export const deleteCommentById = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+export const getCommentsByPostId = async (req, res) => {
+  const { postId } = req.params;
+  try {
+    const post = await Post.findById(postId).populate("commentIds");
+    res.status(200).json(post.commentIds);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
