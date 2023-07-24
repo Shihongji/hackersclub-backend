@@ -3,6 +3,8 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import createError from "http-errors";
+import fs from "fs";
+import cloudinary from "cloudinary";
 dotenv.config();
 
 export const getAllUsers = async (req, res) => {
@@ -16,7 +18,8 @@ export const getAllUsers = async (req, res) => {
 
 // Register
 export const createUser = async (req, res, next) => {
-  const { username, password, email, avatar, bio, role } = req.body;
+  const { username, password, email, bio, role } = req.body;
+  // console.log(req.body.password);
   try {
     // Check if username already exists
     let userByUsername = await User.findOne({ username });
@@ -33,17 +36,31 @@ export const createUser = async (req, res, next) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    // Upload the avatar to Cloudinary
+    const result = await cloudinary.v2.uploader.upload(req.file.path, {
+      folder: "hackerClubAvatarTest/"
+    });
+
+    // Delete the image file from your server
+    fs.unlinkSync(req.file.path);
+
     const user = new User({
       username,
       password: hashedPassword,
       email,
-      avatar,
+      avatar: result.secure_url,
       bio,
       role,
     });
     await user.save();
   } catch (err) {
-    next(err);
+    console.error(err.message);
+    if (err.status) {
+      res.status(err.status).json(err.message);
+    } else {
+      console.error(err);
+      res.status(500).send("Server Error");
+    }
   }
 };
 
@@ -82,7 +99,11 @@ export const loginUser = async (req, res) => {
     );
   } catch (err) {
     console.error(err.message);
-    res.status(500).send("Server Error");
+    if (err.status) {
+      res.status(err.status).send(err.message);
+    } else {
+      res.status(500).send("Server Error");
+    }
   }
 };
 
