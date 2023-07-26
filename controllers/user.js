@@ -26,7 +26,11 @@ export const createUser = async (req, res, next) => {
     if (userByUsername) {
       throw createError.Conflict(`${username} is already registered`);
     }
-    // Check if email already exists, don't have to check because of already email verification
+    // Check if email already exists
+    let userByEmain = await User.findOne({ email });
+    if (userByEmain) {
+      throw createError.Conflict(`${email} is already registered`);
+    }
 
     // Hash password
     const salt = await bcrypt.genSalt(10);

@@ -33,3 +33,21 @@ export const sendVerificationEmail = (userEmail, code) => {
     }
   });
 };
+
+export const sendResetPasswordEmail = (userEmail, token) => {
+  const mailOptions = {
+    from: process.env.TEST_EMAIL_USER,
+    to: userEmail,
+    subject: "Reset your password",
+    html: `<h1>Click on the following link to reset your password</h1>
+    <p>http://localhost:3000/verify/reset-password?token=${token}</p>`,
+  };
+
+  transporter.sendMail(mailOptions, (err, info) => {
+    if (err) {
+      console.log(err);
+    } else {
+      console.log(`Email sent: ${info.response}`);
+    }
+  });
+}
