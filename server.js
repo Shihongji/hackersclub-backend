@@ -5,6 +5,7 @@ import postsRoutes from "./routes/post.js";
 import userRoutes from "./routes/user.js";
 import commentRoutes from "./routes/comment.js";
 import categoryRoutes from "./routes/category.js";
+import verifyEmail from './routes/verification.js';
 import mongoose from "mongoose";
 import { v2 as cloudinary } from "cloudinary";
 
@@ -43,6 +44,8 @@ app.use("/users", userRoutes);
 app.use("/comments", commentRoutes);
 // category routes
 app.use("/categories", categoryRoutes);
+// verification routes 
+app.use("/verify", verifyEmail);
 
 app.get("/", (req, res) => {
   res.json([
