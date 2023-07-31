@@ -82,6 +82,7 @@ export const loginUser = async (req, res) => {
     // Check if password is correct
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
+      console.log("pwd is: ", user.password);
       throw createError.Unauthorized("Invalid password");
     }
 
@@ -95,7 +96,7 @@ export const loginUser = async (req, res) => {
     jwt.sign(
       payload,
       process.env.JWT_SECRET,
-      { expiresIn: "1h" },
+      { expiresIn: "7d" },
       (err, token) => {
         if (err) throw err;
         res.json({ token });

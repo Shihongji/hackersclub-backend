@@ -36,7 +36,7 @@ export const createPost = async (req, res) => {
 
 export const getPostById = async (req, res) => {
   try {
-    const post = await Post.findById(req.params.PostId);
+    const post = await Post.findById(req.params.postId);
     if (!post) {
       return res.status(404).json({ error: "Post not found" });
     }

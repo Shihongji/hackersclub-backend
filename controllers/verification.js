@@ -1,7 +1,8 @@
 import VerificationCode from "../models/verification.js";
 import User from "../models/user.js";
 import jwt from "jsonwebtoken";
-import { sendVerificationEmail, sendResetPasswordEmail } from "../middleware/mailer.js";
+import { sendVerificationEmail, sendResetPasswordEmail } from "../utils/mailer.js";
+import bcrypt from "bcrypt";
 
 export const sendVerificationCode = async (req, res) => {
   const { email } = req.body;
@@ -35,7 +36,7 @@ export const verifyEmail = async (req, res) => {
   const verificationCode = await VerificationCode.findOne({ email, code });
 
   if (verificationCode) {
-    res.json({ message: "Email verified" });
+    res.status(200).json({ message: "Email verified" });
   } else {
     res.status(400).json({ message: "Invalid verification code" });
   }
@@ -82,7 +83,12 @@ export const resetPassword = async (req, res) => {
   } else {
     // Update password
     let user = await User.findOne({ email });
-    user.password = newPassword;
+    // Hash password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+
+    user.password = hashedPassword;
     // Delete token from database
     await VerificationCode.deleteOne({ code: token });
     await user.save();
