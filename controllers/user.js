@@ -57,6 +57,7 @@ export const createUser = async (req, res, next) => {
       role,
     });
     await user.save();
+    res.status(201).json({ message: "User created successfully" });
   } catch (err) {
     console.error(err.message);
     if (err.status) {
