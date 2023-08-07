@@ -4,7 +4,6 @@ import slugify from 'slugify';
 // Define the schema for the Story model
 const { Schema } = mongoose;
 const postSchema = new Schema({
-  author: String,
   title: String,
   slug: { type: String, unique: true },
   url: String,

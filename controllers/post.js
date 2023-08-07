@@ -46,29 +46,103 @@ export const getPostById = async (req, res) => {
   }
 };
 
-export const updatePostById = async (req, res) => {
+export const getPostBySlug = async (req, res) => {
   try {
-    const updatedPost = await Story.findByIdAndUpdate(
-      req.params.PostId,
-      req.body,
-      { new: true }
-    );
-    if (!updatedPost) {
+    const post = await Post.findOne({ slug: req.params.slug });
+    if (!post) {
       return res.status(404).json({ error: "Post not found" });
     }
+    res.status(200).json(post);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+export const updatePostById = async (req, res) => {
+  const { postId } = req.params;
+  const { title, url, text, categoryId, is_deleted, tags } = req.body;
+  
+  try {
+    const post = await Post.findById(postId);
+    if (!post) {
+      return res.status(404).json({ error: "Post not found" });
+    }
+
+    const updatePost = { title, url, text, categoryId, is_deleted, tags };
+    const updatedPost = await Post.findByIdAndUpdate(postId, updatePost, { new: true });
     res.status(200).json(updatedPost);
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    res.status(500).json({ error: err.message });
   }
 };
 
 export const deletePostById = async (req, res) => {
   try {
-    const deletedPost = await Story.findByIdAndDelete(req.params.postId);
+    const deletedPost = await Post.findByIdAndDelete(req.params.postId);
     if (!deletedPost) {
       return res.status(404).json({ error: "Post not found" });
     }
     res.status(204).end();
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+
+export const toggleVisibility = async (req, res) => {
+  const { postId } = req.params;
+  
+  try {
+    const post = await Post.findById(postId);
+    if (!post) {
+      return res.status(404).json({ error: 'No post found with this ID' });
+    }
+
+    // Updating with the opposite of current visibility
+    post.is_visible = !post.is_visible;
+    await post.save();
+
+    res.status(200).json(post);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+
+export const toggleDeletion = async (req, res) => {
+  const { postId } = req.params;
+  
+  try {
+    const post = await Post.findById(postId);
+    if (!post) {
+      return res.status(404).json({ error: 'No post found with this ID' });
+    }
+
+    // Updating with the opposite of current delete status
+    post.is_deleted = !post.is_deleted;
+    await post.save();
+
+    res.status(200).json(post);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+
+export const toggleSticky = async (req, res) => {
+  const { postId } = req.params;
+
+  try {
+    const post = await Post.findById(postId);
+    if (!post) {
+      return res.status(404).json({ error: 'No post found with this ID' });
+    }
+
+    // Updating with the opposite of current sticky status
+    post.is_stickied = !post.is_stickied;
+    await post.save();
+
+    res.status(200).json(post);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
