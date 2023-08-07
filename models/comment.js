@@ -7,6 +7,7 @@ const commentSchema = new Schema({
   text: String,
   created: { type: Date, default: Date.now },
   postId: { type: mongoose.Schema.Types.ObjectId, ref: 'Post' },
+  parentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Comment', default: null },
 });
 
 const Comment = mongoose.model('Comment', commentSchema);
