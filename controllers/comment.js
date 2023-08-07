@@ -86,7 +86,7 @@ export const createCommentByPostId = async (req, res) => {
 
 export const getCommentsByUserId = async (req, res) => {
   try {
-    const comments = await Comment.find({ userId: req.params.userId }).populate('postId', 'title'); // when displaying comments, we only want to show the post title
+    const comments = await Comment.find({ userId: req.params.userId }).populate('postId', 'title'); // when displaying comments, we also want to show the post title
     res.status(200).json(comments);
   } catch (err) {
     res.status(500).json({ error: err.message });

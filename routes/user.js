@@ -11,13 +11,15 @@ import {
   loginUser,
   updateUserById,
 } from "../controllers/user.js";
+import refreshToken from "../controllers/auth.js";
 
 router.get("/", getAllUsers);
 router.post("/register", upload.single("avatar"), createUser);
 router.get("/:UserId", getUserById);
 router.patch("/:UserId", updateUserById);
 router.delete("/:UserId", deleteUserById);
-
 router.post("/login", loginUser);
+
+router.post("/refresh", refreshToken);
 
 export default router;

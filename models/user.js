@@ -10,6 +10,7 @@ const userSchema = new Schema({
   avatar: String,
   bio: String,
   role: { type: String, default: 'user' },
+  refreshToken: String,
 });
 
 const User = mongoose.model('User', userSchema);
