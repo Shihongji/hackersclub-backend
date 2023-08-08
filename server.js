@@ -41,7 +41,7 @@ const swaggerOptions = {
     openapi: "3.0.0",
     info: {
       title: "Hackers Club API",
-      version: "1.0.0",
+      version: "0.5.0",
       description: "Hackers Club API Information (Express)",
       contact: {
         name: "Hongji",

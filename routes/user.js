@@ -215,4 +215,33 @@ router.post("/login", loginUser);
  */
 router.post("/refresh", refreshToken);
 
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     User:
+ *       type: object
+ *       required:
+ *         - username
+ *         - password
+ *         - email
+ *         - role
+ *       properties:
+ *         username:
+ *           type: string 
+ *         password:
+ *           type: string 
+ *         email:
+ *           type: string 
+ *         avatar:
+ *           type: string 
+ *           description: The user's avatar url.
+ *         bio:
+ *           type: string 
+ *         role:
+ *           type: string 
+ *         refreshToken:
+ *           type: string 
+ *           description: The user's refresh token.
+ */
 export default router;

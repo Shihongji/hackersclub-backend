@@ -168,32 +168,51 @@ import {
  *       type: object
  *       required:
  *         - title
- *         - url
+ *         - userId
  *         - text
  *         - categoryId
  *         - is_deleted
- *         - tags
  *       properties:
  *         title:
  *           type: string
  *           description: The post's title.
- *         url:
+ *         userId:
+ *           type: ObjectId
+ *           description: The post's author.
+ *         slug:
  *           type: string
- *           description: The post's url.
+ *           description: The post's readable url.
  *         text:
  *           type: string
  *           description: The post's text.
  *         categoryId:
  *           type: string
  *           description: The post's category.
+ *         commentIds:
+ *           type: array
+ *           items: 
+ *             type: ObjectId
+ *           description: The post's comments.
  *         is_deleted:
  *           type: boolean
- *           description: Whether the post is deleted.
+ *           description: Whether the post is deleted. (by user)
+ *         is_visible:
+ *           type: boolean
+ *           description: Whether the post is visible. (admin)
+ *         is_sticky:
+ *           type: boolean
+ *           description: Whether the post is sticky. (admin)
  *         tags:
  *           type: array
  *           items:
  *             type: string
  *           description: The post's tags.
+ *         created:
+ *           type: Date 
+ *           description: The post's creation date.
+ *         updated:
+ *           type: Date 
+ *           description: The post's last update date.
  */
 router.get('/', getAllPosts);
 router.post('/', createPost);
