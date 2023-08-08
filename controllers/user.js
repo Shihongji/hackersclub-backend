@@ -103,8 +103,14 @@ export const loginUser = async (req, res) => {
 
     user.refreshToken = refreshToken;
     await user.save();
+    // Set refreshToken as HttpOnly cookie
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",  // set this based on environment
+      sameSite: "strict", // preventing CSRF
+    });
 
-    res.status(200).json({ accessToken, refreshToken });
+    res.status(200).json({ accessToken });
   } catch (err) {
     console.error(err.message);
     if (err.status) {
