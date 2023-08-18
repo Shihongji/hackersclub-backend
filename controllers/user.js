@@ -108,7 +108,7 @@ export const loginUser = async (req, res) => {
 
 export const getUserById = async (req, res) => {
   try {
-    const gUser = await User.findById(req.params.UserId);
+    const gUser = await User.findById(req.params.UserId).select('-password -refreshToken -created -__v');
     if (!gUser) {
       return res.status(404).json({ error: "User not found" });
     }
