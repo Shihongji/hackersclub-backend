@@ -10,6 +10,7 @@ import {
   getUserById,
   loginUser,
   updateUserById,
+  uploadAvatar,
 } from "../controllers/user.js";
 import { refreshToken } from "../controllers/authController.js";
 
@@ -74,7 +75,7 @@ router.get("/", getAllUsers);
  *         description: Server-side error has occurred
  */
 
-router.post("/register", upload.single("avatar"), createUser);
+router.post("/register", createUser);
 
 /**
  * @swagger
@@ -99,7 +100,7 @@ router.post("/register", upload.single("avatar"), createUser);
  *      '400':
  *        description: Error occurred
  */
-router.get("/:UserId", getUserById);
+router.get("/:UserId", getUserById, auth);
 
 /**
  * @swagger
@@ -243,5 +244,8 @@ router.post("/refresh", refreshToken);
  *         refreshToken:
  *           type: string 
  *           description: The user's refresh token.
- */
+ */ 
+
+router.patch("/:userId/upload", upload.single("avatar"), uploadAvatar);
+
 export default router;

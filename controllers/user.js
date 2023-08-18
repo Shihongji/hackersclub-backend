@@ -17,8 +17,8 @@ export const getAllUsers = async (req, res) => {
 };
 
 // Register
-export const createUser = async (req, res, next) => {
-  const { username, password, email, bio, role } = req.body;
+export const createUser = async (req, res) => {
+  const { username, password, email,} = req.body;
   // console.log(req.body.password);
   try {
     // Check if username already exists
@@ -36,25 +36,10 @@ export const createUser = async (req, res, next) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Upload the avatar to Cloudinary
-    const result = await cloudinary.v2.uploader.upload(req.file.path, {
-      folder: "hackerClubAvatarTest/",
-    });
-
-    // Delete the image file from your server
-    try {
-      fs.unlinkSync(req.file.path);
-    } catch (err) {
-      console.log(err);
-    }
-
     const user = new User({
       username,
       password: hashedPassword,
       email,
-      avatar: result.secure_url,
-      bio,
-      role,
     });
     await user.save();
     res.status(201).json({ message: "User created successfully" });
@@ -98,7 +83,7 @@ export const loginUser = async (req, res) => {
       expiresIn: "20m",
     });
     const refreshToken = jwt.sign(payload, process.env.JWT_REFRESH_SECRET, {
-      expiresIn: "7d",
+      expiresIn: "30d",
     });
 
     user.refreshToken = refreshToken;
@@ -106,8 +91,8 @@ export const loginUser = async (req, res) => {
     // Set refreshToken as HttpOnly cookie
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",  // set this based on environment
-      sameSite: "strict", // preventing CSRF
+      // secure: true,//process.env.NODE_ENV === "production",  // set this based on environment
+      // sameSite: 'None',// "strict", // preventing CSRF
     });
 
     res.status(200).json({ accessToken });
@@ -158,5 +143,38 @@ export const deleteUserById = async (req, res) => {
     res.status(204).end();
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+};
+
+export const uploadAvatar = async (req, res, next) => {
+  try {
+    // Assuming that user is authenticated and has a userId property on req object
+    // Upload the avatar to cloudinary
+    const base64Image = req.body.avatar.replace(/^data:image\/\w+;base64,/, "");
+    const result = await cloudinary.v2.uploader.upload("data:image/png;base64," + base64Image, {
+      folder: "hackerClubAvatarTest/",
+      format: "png"
+    });
+
+    // // Delete the image file from your Server
+    // try {
+    //   fs.unlinkSync(req.file.path);
+    // } catch (err) {
+    //   console.log(err);
+    // }
+
+    // Add avatar to user in DB 
+    const user = await User.findById(req.params.userId);
+    user.avatar = result.secure_url;
+    await user.save();
+    res.status(200).json({ message: "Avatar uploaded successfully" });
+    } catch (err) {
+    console.error("Error in uploading avatar: ", err.message);
+    if (err.status) {
+      res.status(err.status).json(err.message);
+    } else {
+      console.error(err);
+      res.status(500).send("Server Error");
+    }
   }
 };

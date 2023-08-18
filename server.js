@@ -10,9 +10,33 @@ import mongoose from "mongoose";
 import { v2 as cloudinary } from "cloudinary";
 import swaggerUi from "swagger-ui-express";
 import swaggerJsDoc from "swagger-jsdoc";
+import cookieParser from "cookie-parser";
 
 const app = express();
 dotenv.config();
+app.use(cors({
+  origin: "http://localhost:3000",
+  credentials: true,
+}))
+app.use(cookieParser());
+app.get("/set-cookies", (req, res) => {
+  res.cookie("username", "dony", {
+    maxAge: 1000 * 60 * 60 * 24,
+    httpOnly: true,
+  });
+  console.log("cookies are set");
+  res.send("cookies are set");
+});
+
+app.get("/read-cookies", (req, res) => {
+  const cookies = req.cookies;
+  if (cookies) {
+    console.log("Got!",cookies);
+    res.json(cookies);
+  } else {
+    res.send("No cookies");
+  }
+});
 
 // Connect to MongoDB
 const DB_URI = process.env.DB_URI;
@@ -59,7 +83,6 @@ const swaggerDocs = swaggerJsDoc(swaggerOptions);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 app.use(express.json());
-app.use(cors());
 
 // Use post routes
 app.use("/posts", postsRoutes);
@@ -71,21 +94,6 @@ app.use("/comments", commentRoutes);
 app.use("/categories", categoryRoutes);
 // verification routes
 app.use("/verify", verifyEmail);
-
-app.get("/", (req, res) => {
-  res.json([
-    {
-      title: "First message from server",
-      user: "Admin",
-      content: "Server of Hackers Club website is running successfully!",
-    },
-    {
-      title: "Second message from server",
-      user: "Admin",
-      content: "You can play around!",
-    },
-  ]);
-});
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
