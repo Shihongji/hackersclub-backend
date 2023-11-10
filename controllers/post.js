@@ -1,16 +1,23 @@
 import Post from "../models/post.js";
 
 export const getAllPosts = async (req, res) => {
-  // Some queries
-  const { page = 1, limit = 20, sortBy = 'created', order = 'desc', filter = '' } = req.query; 
+  // Destructuring query parameters with default values for pagination and sorting.
+  const {
+    page = 1,
+    limit = 20,
+    sortBy = "created",
+    order = "desc",
+    filter = "",
+  } = req.query;
   try {
-    // Use the countDocuments() method to get the total number of stories 
+    // Use the countDocuments() method to get the total number of stories
     const total = await Post.countDocuments();
-    // Use the find function with the limit and skip functionality for pagination
-    // Use the sort function to sort the getAllStories 
-    // Use the reges to filter the getAllStories
-    const posts = await Post.find({ title: { $regex: filter, $options: 'i' } })
-      .sort({ [sortBy]: order === 'desc' ? -1 : 1 })
+    // Finding posts with optional filtering, sorting, and pagination:
+    // 1. Filters posts by title using a regular expression for a case-insensitive search.
+    // 2. Sorts the posts based on the sortBy parameter and order.
+    // 3. Limits the number of posts returned to the specified limit.
+    const posts = await Post.find({ title: { $regex: filter, $options: "i" } })
+      .sort({ [sortBy]: order === "desc" ? -1 : 1 })
       .limit(Number(limit))
       .skip((Number(page) - 1) * Number(limit));
 
@@ -61,7 +68,7 @@ export const getPostBySlug = async (req, res) => {
 export const updatePostById = async (req, res) => {
   const { postId } = req.params;
   const { title, url, text, categoryId, is_deleted, tags } = req.body;
-  
+
   try {
     const post = await Post.findById(postId);
     if (!post) {
@@ -69,7 +76,9 @@ export const updatePostById = async (req, res) => {
     }
 
     const updatePost = { title, url, text, categoryId, is_deleted, tags };
-    const updatedPost = await Post.findByIdAndUpdate(postId, updatePost, { new: true });
+    const updatedPost = await Post.findByIdAndUpdate(postId, updatePost, {
+      new: true,
+    });
     res.status(200).json(updatedPost);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -88,14 +97,13 @@ export const deletePostById = async (req, res) => {
   }
 };
 
-
 export const toggleVisibility = async (req, res) => {
   const { postId } = req.params;
-  
+
   try {
     const post = await Post.findById(postId);
     if (!post) {
-      return res.status(404).json({ error: 'No post found with this ID' });
+      return res.status(404).json({ error: "No post found with this ID" });
     }
 
     // Updating with the opposite of current visibility
@@ -108,14 +116,13 @@ export const toggleVisibility = async (req, res) => {
   }
 };
 
-
 export const toggleDeletion = async (req, res) => {
   const { postId } = req.params;
-  
+
   try {
     const post = await Post.findById(postId);
     if (!post) {
-      return res.status(404).json({ error: 'No post found with this ID' });
+      return res.status(404).json({ error: "No post found with this ID" });
     }
 
     // Updating with the opposite of current delete status
@@ -128,14 +135,13 @@ export const toggleDeletion = async (req, res) => {
   }
 };
 
-
 export const toggleSticky = async (req, res) => {
   const { postId } = req.params;
 
   try {
     const post = await Post.findById(postId);
     if (!post) {
-      return res.status(404).json({ error: 'No post found with this ID' });
+      return res.status(404).json({ error: "No post found with this ID" });
     }
 
     // Updating with the opposite of current sticky status

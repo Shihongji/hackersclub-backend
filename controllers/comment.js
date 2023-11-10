@@ -31,6 +31,8 @@ export const getCommentById = async (req, res) => {
   }
 };
 
+// Explain the { new: true } option
+// https://mongoosejs.com/docs/api.html#model_Model.findByIdAndUpdate
 export const updateCommentById = async (req, res) => {
   try {
     const updatedComment = await Comment.findByIdAndUpdate(
