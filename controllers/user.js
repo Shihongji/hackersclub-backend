@@ -20,6 +20,7 @@ export const getAllUsers = async (req, res) => {
 export const createUser = async (req, res) => {
   const { username, password, email,} = req.body;
   // console.log(req.body.password);
+  console.log(req.body);
   try {
     // Check if username already exists
     let userByUsername = await User.findOne({ username });
@@ -77,6 +78,7 @@ export const loginUser = async (req, res) => {
       user: {
         id: user.id,
       },
+      username: user.username,
     };
 
     const accessToken = jwt.sign(payload, process.env.JWT_SECRET, {

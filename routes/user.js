@@ -58,7 +58,7 @@ router.get("/", getAllUsers);
  *     requestBody:
  *       required: true
  *       content:
- *         multipart/form-data:
+ *          application/json:
  *           schema:
  *             type: object
  *             properties:
@@ -229,22 +229,22 @@ router.post("/refresh", refreshToken);
  *         - role
  *       properties:
  *         username:
- *           type: string 
+ *           type: string
  *         password:
- *           type: string 
+ *           type: string
  *         email:
- *           type: string 
+ *           type: string
  *         avatar:
- *           type: string 
+ *           type: string
  *           description: The user's avatar url.
  *         bio:
- *           type: string 
+ *           type: string
  *         role:
- *           type: string 
+ *           type: string
  *         refreshToken:
- *           type: string 
+ *           type: string
  *           description: The user's refresh token.
- */ 
+ */
 
 router.patch("/:userId/upload", upload.single("avatar"), uploadAvatar);
 
