@@ -11,7 +11,8 @@ export const getAllPosts = async (req, res) => {
   } = req.query;
   try {
     // Use the countDocuments() method to get the total number of stories
-    const total = await Post.countDocuments();
+    // Too expensive to run on large datasets, don't use in production!
+    // const total = await Post.countDocuments();
     // Finding posts with optional filtering, sorting, and pagination:
     // 1. Filters posts by title using a regular expression for a case-insensitive search.
     // 2. Sorts the posts based on the sortBy parameter and order.
@@ -19,13 +20,20 @@ export const getAllPosts = async (req, res) => {
     const posts = await Post.find({ title: { $regex: filter, $options: "i" } })
       .sort({ [sortBy]: order === "desc" ? -1 : 1 })
       .limit(Number(limit))
-      .skip((Number(page) - 1) * Number(limit));
+      .skip((Number(page) - 1) * Number(limit))
+      .populate("userId", "username")
+      .select("title created_at commentIds userId")
+      .lean(); // Returns a plain JavaScript object instead of a mongoose document instance.
+
+    const modifiedPosts = posts.map((post) => ({
+      title: post.title,
+      author: post.userId.username,
+      created_at: post.created_at,
+      total_comments: post.commentIds.length,
+    }));
 
     res.status(200).json({
-      totalPages: Math.ceil(total / limit),
-      currentPage: page,
-      totalPosts: total,
-      posts,
+      results: modifiedPosts,
     });
   } catch (err) {
     res.status(500).json({ message: err });
