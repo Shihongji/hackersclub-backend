@@ -5,7 +5,6 @@ export const refreshToken = async (req, res) => {
   try {
     // Get refreshToken from request cookies
     const { refreshToken } = req.cookies;
-    console.log(refreshToken);
 
     if (!refreshToken) {
       return res.status(401).json({ error: "No token, authorization denied" });
