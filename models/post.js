@@ -9,7 +9,7 @@ const postSchema = new Schema({
   url: String,
   text: String,
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  created: { type: Date, default: Date.now },
+  created_at: { type: Date, default: Date.now },
   updated: { type: Date, default: Date.now },
   commentIds: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }],
   // favorites: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
