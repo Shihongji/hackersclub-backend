@@ -12,12 +12,25 @@ import swaggerUi from "swagger-ui-express";
 import swaggerJsDoc from "swagger-jsdoc";
 import cookieParser from "cookie-parser";
 
+const allowedOrigins = ["http://localhost:3000", "http://localhost:4000"];
+
 const app = express();
 dotenv.config();
-app.use(cors({
-  origin: "http://localhost:3000",
-  credentials: true,
-}))
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.indexOf(origin) === -1) {
+        const msg =
+          "The CORS policy for this site does not " +
+          "allow access from the specified Origin.";
+        return callback(new Error(msg), false);
+      }
+      return callback(null, true);
+    },
+    credentials: true,
+  }),
+);
 app.use(cookieParser());
 app.get("/set-cookies", (req, res) => {
   res.cookie("username", "dony", {
@@ -31,7 +44,7 @@ app.get("/set-cookies", (req, res) => {
 app.get("/read-cookies", (req, res) => {
   const cookies = req.cookies;
   if (cookies) {
-    console.log("Got!",cookies);
+    console.log("Got!", cookies);
     res.json(cookies);
   } else {
     res.send("No cookies");

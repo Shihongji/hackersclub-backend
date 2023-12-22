@@ -90,8 +90,10 @@ export const loginUser = async (req, res) => {
 
     user.refreshToken = refreshToken;
     await user.save();
+    const cookieValue = JSON.stringify({ refreshToken, userId: user.id});
+
     // Set refreshToken as HttpOnly cookie
-    res.cookie("refreshToken", refreshToken, {
+    res.cookie("cookieValue", cookieValue, {
       httpOnly: true,
       // secure: true,//process.env.NODE_ENV === "production",  // set this based on environment
       // sameSite: 'None',// "strict", // preventing CSRF

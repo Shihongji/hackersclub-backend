@@ -4,7 +4,19 @@ import User from "../models/user.js";
 export const refreshToken = async (req, res) => {
   try {
     // Get refreshToken from request cookies
-    const { refreshToken } = req.cookies;
+    const { cookieValue } = req.cookies;
+    if (!cookieValue) {
+      return res.status(401).json({
+        error: "Unauthorized - No cookie provided",
+      });
+    }
+    let parsedCookie;
+    try {
+      parsedCookie = JSON.parse(cookieValue);
+    } catch (err) {
+      return res.status(401).json({ error: "Unauthorized - Invalid cookie" });
+    }
+    const { refreshToken } = parsedCookie;
 
     if (!refreshToken) {
       return res.status(401).json({ error: "No token, authorization denied" });
@@ -44,7 +56,7 @@ export const refreshToken = async (req, res) => {
       },
     );
   } catch (err) {
-    console.log("Error in refreshToken:",err);
+    console.log("Error in refreshToken:", err);
     res.status(500).json({ error: err.message });
   }
 };

@@ -1,10 +1,11 @@
 import Post from "../models/post.js";
+import Tag from "../models/tag.js";
 
 export const getAllPosts = async (req, res) => {
   // Destructuring query parameters with default values for pagination and sorting.
   const {
     page = 1,
-    limit = 20,
+    limit = 10,
     sortBy = "created",
     order = "desc",
     filter = "",
@@ -17,22 +18,27 @@ export const getAllPosts = async (req, res) => {
     // 1. Filters posts by title using a regular expression for a case-insensitive search.
     // 2. Sorts the posts based on the sortBy parameter and order.
     // 3. Limits the number of posts returned to the specified limit.
+    const totalPostsCount = await Post.countDocuments();
     const posts = await Post.find({ title: { $regex: filter, $options: "i" } })
       .sort({ [sortBy]: order === "desc" ? -1 : 1 })
       .limit(Number(limit))
       .skip((Number(page) - 1) * Number(limit))
       .populate("userId", "username")
-      .select("title created_at commentIds userId")
+      .select("title created_at commentIds userId slug")
       .lean(); // Returns a plain JavaScript object instead of a mongoose document instance.
 
     const modifiedPosts = posts.map((post) => ({
+      postId: post._id,
       title: post.title,
       author: post.userId.username,
       created_at: post.created_at,
       total_comments: post.commentIds.length,
+      slug: post.slug,
     }));
 
     res.status(200).json({
+      total: totalPostsCount,
+      totalPages: Math.ceil(totalPostsCount / limit),
       results: modifiedPosts,
     });
   } catch (err) {
@@ -63,7 +69,10 @@ export const getPostById = async (req, res) => {
 
 export const getPostBySlug = async (req, res) => {
   try {
-    const post = await Post.findOne({ slug: req.params.slug });
+    const post = await Post.findOne({ slug: req.params.slug }).populate(
+      "tags",
+      "name",
+    );
     if (!post) {
       return res.status(404).json({ error: "Post not found" });
     }

@@ -2,11 +2,11 @@ import express from 'express';
 const router = express.Router();
 import {
   getAllComments,
-  createComment,
   getCommentById,
   updateCommentById,
   deleteCommentById,
   getCommentsByPostId,
+  createCommentByPostId,
 } from '../controllers/comment.js';
 
 /**
@@ -144,7 +144,7 @@ import {
  *           description: The ID of the post on which the comment is made.
  */
 router.get('/', getAllComments);
-router.post('/', createComment);
+router.post('/', createCommentByPostId);
 router.get('/:commentId', getCommentById);
 router.put('/:commentId', updateCommentById);
 router.delete('/:commentId', deleteCommentById);
