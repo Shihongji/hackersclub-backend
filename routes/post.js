@@ -1,4 +1,5 @@
 import express from 'express';
+import auth from '../middleware/auth.js';
 const router = express.Router();
 import {
   getAllPosts,
@@ -216,7 +217,7 @@ import {
  */
 router.get('/', getAllPosts);
 router.post('/', createPost);
-router.get('/id/:postId', getPostById);
+router.get('/id/:postId', auth, getPostById);
 router.put('/:postId', updatePostById);
 router.delete('/:postId', deletePostById);
 router.get('/:slug', getPostBySlug);

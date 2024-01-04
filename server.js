@@ -32,24 +32,6 @@ app.use(
   }),
 );
 app.use(cookieParser());
-app.get("/set-cookies", (req, res) => {
-  res.cookie("username", "dony", {
-    maxAge: 1000 * 60 * 60 * 24,
-    httpOnly: true,
-  });
-  console.log("cookies are set");
-  res.send("cookies are set");
-});
-
-app.get("/read-cookies", (req, res) => {
-  const cookies = req.cookies;
-  if (cookies) {
-    console.log("Got!", cookies);
-    res.json(cookies);
-  } else {
-    res.send("No cookies");
-  }
-});
 
 // Connect to MongoDB
 const DB_URI = process.env.DB_URI;
