@@ -76,14 +76,27 @@ export const getPostById = async (req, res) => {
 
 export const getPostBySlug = async (req, res) => {
   try {
-    const post = await Post.findOne({ slug: req.params.slug }).populate(
-      "tags",
-      "name",
-    );
+    const post = await Post.findOne({ slug: req.params.slug })
+      .populate("tags", "name")
+      .populate("userId", "username")
+      .populate("categoryId", "name");
     if (!post) {
       return res.status(404).json({ error: "Post not found" });
     }
-    res.status(200).json(post);
+    // Extracting the username and category name
+    const author = post.userId.username;
+    const category_display = post.categoryId.name;
+
+    // Createing a new object
+    const modifiedPost = {
+      ...post.toObject(),
+      author,
+      category_display,
+    };
+    // Deleting the userId and categoryId properties from the modifiedPost object
+    delete modifiedPost.userId;
+    delete modifiedPost.categoryId;
+    res.status(200).json(modifiedPost);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
