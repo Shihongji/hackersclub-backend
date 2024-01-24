@@ -9,6 +9,7 @@ export const getAllPosts = async (req, res) => {
     sortBy = "created",
     order = "desc",
     filter = "",
+    category_id,
   } = req.query;
   try {
     // Use the countDocuments() method to get the total number of stories
@@ -18,8 +19,14 @@ export const getAllPosts = async (req, res) => {
     // 1. Filters posts by title using a regular expression for a case-insensitive search.
     // 2. Sorts the posts based on the sortBy parameter and order.
     // 3. Limits the number of posts returned to the specified limit.
-    const totalPostsCount = await Post.countDocuments();
-    const posts = await Post.find({ title: { $regex: filter, $options: "i" } })
+    const queryConditions = {
+      title: { $regex: filter, $options: "i" },
+    };
+    if (category_id) {
+      queryConditions.categoryId = category_id;
+    }
+    const totalPostsCount = await Post.countDocuments(queryConditions);
+    const posts = await Post.find(queryConditions)
       .sort({ [sortBy]: order === "desc" ? -1 : 1 })
       .limit(Number(limit))
       .skip((Number(page) - 1) * Number(limit))
