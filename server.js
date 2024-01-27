@@ -5,11 +5,33 @@ import postsRoutes from "./routes/post.js";
 import userRoutes from "./routes/user.js";
 import commentRoutes from "./routes/comment.js";
 import categoryRoutes from "./routes/category.js";
+import verifyEmail from "./routes/verification.js";
 import mongoose from "mongoose";
 import { v2 as cloudinary } from "cloudinary";
+import swaggerUi from "swagger-ui-express";
+import swaggerJsDoc from "swagger-jsdoc";
+import cookieParser from "cookie-parser";
+
+const allowedOrigins = ["http://localhost:3000", "http://localhost:4000"];
 
 const app = express();
 dotenv.config();
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.indexOf(origin) === -1) {
+        const msg =
+          "The CORS policy for this site does not " +
+          "allow access from the specified Origin.";
+        return callback(new Error(msg), false);
+      }
+      return callback(null, true);
+    },
+    credentials: true,
+  }),
+);
+app.use(cookieParser());
 
 // Connect to MongoDB
 const DB_URI = process.env.DB_URI;
@@ -32,10 +54,32 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-app.use(express.json());
-app.use(cors());
+// Configuring Swagger
+const swaggerOptions = {
+  swaggerDefinition: {
+    openapi: "3.0.0",
+    info: {
+      title: "Hackers Club API",
+      version: "0.5.0",
+      description: "Hackers Club API Information (Express)",
+      contact: {
+        name: "Hongji",
+      },
+    },
+    servers: [
+      {
+        url: "http://localhost:4000",
+      },
+    ],
+  },
+  apis: ["./routes/*.js"],
+};
+const swaggerDocs = swaggerJsDoc(swaggerOptions);
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
-// Use stories routes
+app.use(express.json());
+
+// Use post routes
 app.use("/posts", postsRoutes);
 // user routes
 app.use("/users", userRoutes);
@@ -43,21 +87,8 @@ app.use("/users", userRoutes);
 app.use("/comments", commentRoutes);
 // category routes
 app.use("/categories", categoryRoutes);
-
-app.get("/", (req, res) => {
-  res.json([
-    {
-      title: "First message from server",
-      user: "Admin",
-      content: "Server of Hackers Club website is running successfully!",
-    },
-    {
-      title: "Second message from server",
-      user: "Admin",
-      content: "You can play around!",
-    },
-  ]);
-});
+// verification routes
+app.use("/verify", verifyEmail);
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {

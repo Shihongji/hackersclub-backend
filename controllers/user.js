@@ -17,9 +17,10 @@ export const getAllUsers = async (req, res) => {
 };
 
 // Register
-export const createUser = async (req, res, next) => {
-  const { username, password, email, bio, role } = req.body;
+export const createUser = async (req, res) => {
+  const { username, password, email,} = req.body;
   // console.log(req.body.password);
+  console.log(req.body);
   try {
     // Check if username already exists
     let userByUsername = await User.findOne({ username });
@@ -36,27 +37,13 @@ export const createUser = async (req, res, next) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Upload the avatar to Cloudinary
-    const result = await cloudinary.v2.uploader.upload(req.file.path, {
-      folder: "hackerClubAvatarTest/"
-    });
-
-    // Delete the image file from your server
-    try {
-      fs.unlinkSync(req.file.path);
-    } catch (err) {
-      console.log(err);
-    }
-
     const user = new User({
       username,
       password: hashedPassword,
       email,
-      avatar: result.secure_url,
-      bio,
-      role,
     });
     await user.save();
+    res.status(201).json({ message: "User created successfully" });
   } catch (err) {
     console.error(err.message);
     if (err.status) {
@@ -82,6 +69,7 @@ export const loginUser = async (req, res) => {
     // Check if password is correct
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
+      // console.log("pwd is: ", user.password);
       throw createError.Unauthorized("Invalid password");
     }
 
@@ -90,17 +78,28 @@ export const loginUser = async (req, res) => {
       user: {
         id: user.id,
       },
+      username: user.username,
     };
 
-    jwt.sign(
-      payload,
-      process.env.JWT_SECRET,
-      { expiresIn: "1h" },
-      (err, token) => {
-        if (err) throw err;
-        res.json({ token });
-      },
-    );
+    const accessToken = jwt.sign(payload, process.env.JWT_SECRET, {
+      expiresIn: "20m",
+    });
+    const refreshToken = jwt.sign(payload, process.env.JWT_REFRESH_SECRET, {
+      expiresIn: "30d",
+    });
+
+    user.refreshToken = refreshToken;
+    await user.save();
+    const cookieValue = JSON.stringify({ refreshToken, userId: user.id});
+
+    // Set refreshToken as HttpOnly cookie
+    res.cookie("cookieValue", cookieValue, {
+      httpOnly: true,
+      // secure: true,//process.env.NODE_ENV === "production",  // set this based on environment
+      // sameSite: 'None',// "strict", // preventing CSRF
+    });
+
+    res.status(200).json({ accessToken });
   } catch (err) {
     console.error(err.message);
     if (err.status) {
@@ -113,7 +112,7 @@ export const loginUser = async (req, res) => {
 
 export const getUserById = async (req, res) => {
   try {
-    const gUser = await User.findById(req.params.UserId);
+    const gUser = await User.findById(req.params.UserId).select('-password -refreshToken -created -__v');
     if (!gUser) {
       return res.status(404).json({ error: "User not found" });
     }
@@ -148,5 +147,38 @@ export const deleteUserById = async (req, res) => {
     res.status(204).end();
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+};
+
+export const uploadAvatar = async (req, res, next) => {
+  try {
+    // Assuming that user is authenticated and has a userId property on req object
+    // Upload the avatar to cloudinary
+    const base64Image = req.body.avatar.replace(/^data:image\/\w+;base64,/, "");
+    const result = await cloudinary.v2.uploader.upload("data:image/png;base64," + base64Image, {
+      folder: "hackerClubAvatarTest/",
+      format: "png"
+    });
+
+    // // Delete the image file from your Server
+    // try {
+    //   fs.unlinkSync(req.file.path);
+    // } catch (err) {
+    //   console.log(err);
+    // }
+
+    // Add avatar to user in DB 
+    const user = await User.findById(req.params.userId);
+    user.avatar = result.secure_url;
+    await user.save();
+    res.status(200).json({ message: "Avatar uploaded successfully" });
+    } catch (err) {
+    console.error("Error in uploading avatar: ", err.message);
+    if (err.status) {
+      res.status(err.status).json(err.message);
+    } else {
+      console.error(err);
+      res.status(500).send("Server Error");
+    }
   }
 };
