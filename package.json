@@ -1,7 +1,7 @@
 {
   "name": "hackersclub-backend",
-  "version": "1.0.0",
-  "description": "Server for Hackers Club Silicon Valley",
+  "version": "0.8.0",
+  "description": "Express Server for Hackers Club Silicon Valley",
   "main": "server.js",
   "type": "module",
   "scripts": {
@@ -15,7 +15,7 @@
     "type": "git",
     "url": "git+https://github.com/hackersclubsv/hackersclub-backend.git"
   },
-  "author": "",
+  "author": "Hongji Shi",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/hackersclubsv/hackersclub-backend/issues"
